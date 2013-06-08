@@ -1,14 +1,14 @@
 #!/usr/bin/python
 
 import json, urllib, urllib2, subprocess, re, sys, time, os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Script settings
 lastid_filename = "pydayone_lastid.txt"
 
 # Twitter settings
 twitter_username = "mrdan"  # guess
-tweet_count = 5           # How many tweets to pull down at a time, the higher the number the less frequently you should run the script
+tweet_count = 200           # How many tweets to pull down at a time, the higher the number the less frequently you should run the script
 retweets = 1                # 1 to include retweets and 0 to exclude them. Retweets are included in the tweet_count no matter what you pick here
 tweet_photos = 1            # 1 to include photos in the tweet
 
@@ -39,8 +39,10 @@ for tweet in tweets:
         tweet_text = "@" + twitter_username + ":  " + tweet['text']
 
         tweet_time = tweet['created_at']
-        tweet_time = re.sub(r'\+[0-9]+ ', '', tweet_time) #strip out the timezone info
+        tweet_time = re.sub(r'\+[0-9]+ ', '', tweet_time) # strip out the timezone info
         our_date = datetime.strptime(tweet_time, "%a %b %d %H:%M:%S %Y")
+        tz_diff = int(tweet['user']['utc_offset'])
+        our_date = our_date + timedelta(seconds=tz_diff) # apply user profile timezone info
         our_date = our_date.strftime("%Y-%m-%d %H:%M:%S")
 
         if tweet['in_reply_to_status_id']:
